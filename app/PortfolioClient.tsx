@@ -187,34 +187,44 @@ const services = [
 
 const defaultProjects: Project[] = [
   {
-    id: "admission-dashboard",
-    title: "Spot Admission Dashboard",
+    id: "varish-service-center",
+    title: "Varish Service Center Website",
     description:
-      "A polished admin-style interface for managing spot admission workflows, filtering candidates, and reviewing data quickly.",
-    liveLink: "https://example.com",
-    githubLink: "https://github.com/",
-    thumbnail: "",
-    tags: ["React", "Dashboard", "Tailwind"],
+      "A modern bike service center website with a strong hero section, service highlights, booking flow, and clean responsive presentation.",
+    liveLink: "https://shofar-service-center.vercel.app/",
+    githubLink: "",
+    thumbnail: "/projects/varish-service-center.png",
+    tags: ["Service Website", "React", "Responsive"],
   },
   {
-    id: "portfolio-system",
-    title: "Interactive Portfolio System",
+    id: "sofar-resume",
+    title: "Sofar Resume Website",
     description:
-      "A futuristic React portfolio concept with motion, glass UI, chatbot answers, and a project publishing studio.",
-    liveLink: "https://example.com",
-    githubLink: "https://github.com/",
-    thumbnail: "",
-    tags: ["React", "UI/UX", "Animation"],
+      "A focused resume website designed to present profile details, skills, experience, and professional information in a simple digital format.",
+    liveLink: "https://shofar-resume.vercel.app/",
+    githubLink: "",
+    thumbnail: "/projects/sofar-resume.png",
+    tags: ["Resume", "Portfolio", "React"],
   },
   {
-    id: "landing-lab",
-    title: "Startup Landing Page Lab",
+    id: "abc-education-delhi",
+    title: "ABC Education Delhi",
     description:
-      "A modern product landing experience with animated hero states, conversion sections, and responsive design polish.",
-    liveLink: "https://example.com",
-    githubLink: "https://github.com/",
-    thumbnail: "",
-    tags: ["Landing", "Tailwind", "UI/UX"],
+      "An education website for ABC Education Delhi with informative sections, clean layout, and direct access for students and parents.",
+    liveLink: "https://abc-education-delhi-4yc4.vercel.app/",
+    githubLink: "",
+    thumbnail: "/projects/abc-education-delhi.png",
+    tags: ["Education", "Landing Page", "Responsive"],
+  },
+  {
+    id: "dharmaseva",
+    title: "DharmaSeva Online Pandit Booking",
+    description:
+      "An online pandit booking and live darshan platform concept with devotional service sections, booking-focused UI, and accessible navigation.",
+    liveLink: "https://pandit-puja-live-darshan.vercel.app/",
+    githubLink: "",
+    thumbnail: "/projects/dharmaseva.png",
+    tags: ["Booking", "Service Platform", "React"],
   },
 ];
 
@@ -262,6 +272,31 @@ const testimonials = [
     role: "Small Business Owner",
     text: "He translated my idea into a clean website with strong mobile design and smooth interactions.",
   },
+  {
+    name: "Priya Sharma",
+    role: "Education Consultant",
+    text: "The website felt professional from the first screen. The sections were clear, responsive, and easy to navigate.",
+  },
+  {
+    name: "Sameer Ali",
+    role: "Service Business Owner",
+    text: "Shoaib created a polished service website that made our work look more trustworthy and organized online.",
+  },
+  {
+    name: "Anjali Verma",
+    role: "Career Mentor",
+    text: "His resume-style web design is clean, readable, and much better than sharing a plain document.",
+  },
+  {
+    name: "Kunal Raj",
+    role: "Freelance Client",
+    text: "He listens carefully, improves the UI details, and makes the final page feel smooth on both laptop and phone.",
+  },
+  {
+    name: "Meera Iqbal",
+    role: "Product Reviewer",
+    text: "The design has a premium feel without becoming heavy. It loads well and the call-to-action buttons are easy to find.",
+  },
 ];
 
 const suggestedQuestions = [
@@ -285,6 +320,18 @@ const emptyProjectForm: ProjectForm = {
   tags: "",
 };
 
+const legacyProjectIds = new Set(["admission-dashboard", "portfolio-system", "landing-lab"]);
+
+function normalizeSavedProjects(savedProjects: Project[]) {
+  const savedRealProjects = savedProjects.filter((project) => !legacyProjectIds.has(project.id));
+  const merged = new Map<string, Project>();
+
+  defaultProjects.forEach((project) => merged.set(project.id, project));
+  savedRealProjects.forEach((project) => merged.set(project.id, project));
+
+  return Array.from(merged.values());
+}
+
 const reveal = {
   hidden: { opacity: 0, y: 22 },
   show: { opacity: 1, y: 0 },
@@ -303,6 +350,7 @@ export default function PortfolioClient() {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [projectForm, setProjectForm] = useState<ProjectForm>(emptyProjectForm);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+  const [projectStatus, setProjectStatus] = useState("");
   const [expandedCase, setExpandedCase] = useState(caseStudies[0].title);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
@@ -360,7 +408,7 @@ export default function PortfolioClient() {
       try {
         const parsed = JSON.parse(savedProjects) as Project[];
         if (Array.isArray(parsed) && parsed.length) {
-          setProjects(parsed);
+          setProjects(normalizeSavedProjects(parsed));
         }
       } catch {
         window.localStorage.removeItem("shoaib-projects");
@@ -470,6 +518,7 @@ export default function PortfolioClient() {
         ? current.map((project) => (project.id === editingProjectId ? nextProject : project))
         : [nextProject, ...current],
     );
+    setProjectStatus(editingProjectId ? "Project updated and saved in this browser." : "Project added and saved in this browser.");
     setEditingProjectId(null);
     setProjectForm(emptyProjectForm);
   };
@@ -801,14 +850,14 @@ export default function PortfolioClient() {
         <Reveal className="section-heading">
           <p className="eyebrow">Live Projects Dashboard</p>
           <h2>Manage project cards without losing polish.</h2>
-          <p>Paste a live link, GitHub link, title, description, thumbnail image URL, and tags. Your browser saves the cards locally.</p>
+          <p>Paste a live link, GitHub link, title, description, thumbnail image URL, and tags. New projects you add here are saved as real project cards in your browser.</p>
         </Reveal>
 
         <Reveal className="project-control">
           <div className="project-control-copy">
             <p className="eyebrow">Admin Input</p>
             <h3>{editingProjectId ? "Edit project card" : "Add a project card"}</h3>
-            <p>Keep your portfolio fresh by adding real project links and previews directly from this page.</p>
+            <p>Keep your portfolio fresh by adding real project links and previews directly from this page. This form adds your entered project, not dummy data.</p>
           </div>
           <form onSubmit={handleProjectSubmit} className="project-form">
             <FormField label="Project title">
@@ -873,6 +922,7 @@ export default function PortfolioClient() {
                 </button>
               ) : null}
             </div>
+            {projectStatus ? <p className="project-status">{projectStatus}</p> : null}
           </form>
         </Reveal>
 
@@ -1292,14 +1342,16 @@ const ProjectCard = memo(function ProjectCard({
       <h3>{project.title}</h3>
       <p>{project.description}</p>
       <div className="project-links">
-        <a href={project.liveLink || "#projects"} target="_blank" rel="noreferrer">
+        <a className="live-demo-link" href={project.liveLink || "#projects"} target="_blank" rel="noreferrer">
           <FiExternalLink />
-          Live Demo
+          View Live Demo
         </a>
-        <a href={project.githubLink || "#projects"} target="_blank" rel="noreferrer">
-          <FaGithub />
-          GitHub
-        </a>
+        {project.githubLink ? (
+          <a href={project.githubLink} target="_blank" rel="noreferrer">
+            <FaGithub />
+            GitHub
+          </a>
+        ) : null}
       </div>
       <div className="project-admin-actions">
         <button type="button" onClick={() => onEdit(project)} aria-label={`Edit ${project.title}`}>
