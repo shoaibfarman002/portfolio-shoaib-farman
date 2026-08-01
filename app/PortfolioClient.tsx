@@ -1256,7 +1256,15 @@ export default function PortfolioClient() {
               <i />
             </div>
           </Reveal>
-          <Reveal as="form" className="contact-form" onSubmit={handleContactSubmit}>
+          <motion.form
+            className="contact-form"
+            onSubmit={handleContactSubmit}
+            variants={reveal}
+            initial={shouldReduceMotion ? false : "hidden"}
+            whileInView="show"
+            viewport={{ once: true, margin: "-10% 0px -12% 0px" }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+          >
             <FormField label="Name">
               <input name="name" placeholder="Your name" required />
             </FormField>
@@ -1296,7 +1304,7 @@ export default function PortfolioClient() {
                 </motion.p>
               ) : null}
             </AnimatePresence>
-          </Reveal>
+          </motion.form>
         </div>
       </section>
 
@@ -1337,25 +1345,26 @@ function Reveal({
   className = "",
   delay = 0,
   as = "div",
-  ...props
+  "aria-label": ariaLabel,
 }: {
   children: ReactNode;
   className?: string;
   delay?: number;
-  as?: "div" | "p" | "form";
-} & React.HTMLAttributes<HTMLElement>) {
+  as?: "div" | "p";
+  "aria-label"?: string;
+}) {
   const shouldReduceMotion = useReducedMotion();
-  const Component = motion[as] as typeof motion.div;
+  const Component = as === "p" ? motion.p : motion.div;
 
   return (
     <Component
       className={className}
+      aria-label={ariaLabel}
       variants={reveal}
       initial={shouldReduceMotion ? false : "hidden"}
       whileInView="show"
       viewport={{ once: true, margin: "-10% 0px -12% 0px" }}
       transition={{ duration: 0.45, delay, ease: "easeOut" }}
-      {...props}
     >
       {children}
     </Component>
