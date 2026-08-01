@@ -732,7 +732,9 @@ export default function PortfolioClient() {
           transition={{ duration: 0.55, delay: 0.08, ease: "easeOut" }}
         >
           <div className="profile-visual">
-            <span>SF</span>
+            {/* Static portfolio portrait; using img keeps this client component lightweight. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/profile-shoaib-farman.jpeg" alt="Shoaib Farman portrait" />
           </div>
           <div className="profile-summary">
             <p>Available for React projects</p>
