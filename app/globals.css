@@ -243,6 +243,11 @@ button {
   gap: 10px;
 }
 
+.nav-actions {
+  justify-self: end;
+  flex-wrap: nowrap;
+}
+
 .icon-button,
 .music-toggle {
   display: grid;
@@ -1813,7 +1818,24 @@ button {
     top: 10px;
     width: calc(100% - 20px);
     min-height: 62px;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 10px;
+  }
+
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .music-toggle {
+    width: 42px;
+    min-width: 42px;
+    padding: 0;
+  }
+
+  .music-toggle span {
+    display: none;
   }
 
   .mobile-nav {
@@ -1934,15 +1956,6 @@ button {
 
   .nav-actions {
     gap: 7px;
-  }
-
-  .music-toggle {
-    min-width: 42px;
-    padding: 0;
-  }
-
-  .music-toggle span {
-    display: none;
   }
 
   .hero-buttons,
