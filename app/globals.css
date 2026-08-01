@@ -252,7 +252,9 @@ button {
 .music-toggle {
   display: grid;
   height: 42px;
+  flex: 0 0 auto;
   place-items: center;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-soft);
@@ -269,6 +271,8 @@ button {
 
 .music-toggle {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: auto;
   min-width: 96px;
   gap: 8px;
@@ -297,9 +301,12 @@ button {
 
 .icon-button svg,
 .music-toggle svg {
+  display: block;
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
+  margin: 0;
+  pointer-events: none;
 }
 
 .mobile-menu-button,
@@ -1955,7 +1962,21 @@ button {
   }
 
   .nav-actions {
-    gap: 7px;
+    gap: 6px;
+  }
+
+  .icon-button,
+  .music-toggle {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0;
+  }
+
+  .icon-button svg,
+  .music-toggle svg {
+    width: 17px;
+    height: 17px;
   }
 
   .hero-buttons,
@@ -1985,6 +2006,29 @@ button {
 
   .hero-copy-panel h1 {
     font-size: 2.8rem;
+  }
+
+  .hero-profile {
+    width: 100%;
+    max-width: 430px;
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .profile-visual {
+    min-height: auto;
+    padding: 14px;
+  }
+
+  .profile-visual img {
+    width: min(62vw, 210px);
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-position: center 30%;
+  }
+
+  .profile-summary {
+    width: min(62vw, 210px);
   }
 
   .story-prose p {
@@ -2028,6 +2072,7 @@ button {
     top: 8px;
     width: calc(100% - 16px);
     min-height: 58px;
+    padding: 7px 8px;
   }
 
   .icon-button,
@@ -2051,17 +2096,18 @@ button {
   }
 
   .profile-visual {
-    min-height: 236px;
-    padding: 16px;
+    padding: 12px;
   }
 
   .profile-visual img {
-    width: min(80%, 210px);
-    height: 218px;
+    width: min(58vw, 190px);
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-position: center 30%;
   }
 
   .profile-summary {
-    width: min(80%, 210px);
+    width: min(58vw, 190px);
     padding: 11px;
   }
 
@@ -2102,7 +2148,7 @@ button {
 
   .profile-visual img,
   .profile-summary {
-    width: min(86%, 190px);
+    width: min(56vw, 176px);
   }
 }
 
