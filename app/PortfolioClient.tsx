@@ -90,9 +90,9 @@ const navItems = [
 ];
 
 const socialLinks: Array<{ label: string; href: string; Icon: IconType }> = [
-  { label: "GitHub", href: "#projects", Icon: FaGithub },
-  { label: "LinkedIn", href: "#contact", Icon: FaLinkedinIn },
-  { label: "Instagram", href: "#contact", Icon: FaInstagram },
+  { label: "GitHub", href: "https://github.com/shoaibfarman002", Icon: FaGithub },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/shoaib-farman-4b2b27402/", Icon: FaLinkedinIn },
+  { label: "Instagram", href: "https://www.instagram.com/i.shoaib.002", Icon: FaInstagram },
   { label: "WhatsApp", href: contact.whatsapp, Icon: FaWhatsapp },
 ];
 
