@@ -343,6 +343,7 @@ const reveal = {
 };
 
 const ambientNotes = [196, 246.94, 293.66, 369.99];
+const melodyNotes = [392, 493.88, 587.33, 739.99, 659.25, 493.88];
 
 function getAudioContextConstructor() {
   if (typeof window === "undefined") return null;
@@ -362,12 +363,14 @@ function createAmbientTrack(): AmbientTrack | null {
   const filter = context.createBiquadFilter();
   const delay = context.createDelay(1.8);
   const feedback = context.createGain();
+  const melodyBus = context.createGain();
   const lfo = context.createOscillator();
   const lfoGain = context.createGain();
   const oscillators: OscillatorNode[] = [];
+  let melodyStep = 0;
 
   master.gain.setValueAtTime(0.0001, context.currentTime);
-  master.gain.linearRampToValueAtTime(0.035, context.currentTime + 0.8);
+  master.gain.linearRampToValueAtTime(0.22, context.currentTime + 0.8);
   master.connect(context.destination);
 
   filter.type = "lowpass";
@@ -381,13 +384,17 @@ function createAmbientTrack(): AmbientTrack | null {
   feedback.connect(delay);
   delay.connect(filter);
 
+  melodyBus.gain.value = 0.42;
+  melodyBus.connect(filter);
+  melodyBus.connect(delay);
+
   ambientNotes.forEach((frequency, index) => {
     const oscillator = context.createOscillator();
     const gain = context.createGain();
     oscillator.type = index % 2 === 0 ? "sine" : "triangle";
     oscillator.frequency.value = frequency;
     oscillator.detune.value = index * 4 - 6;
-    gain.gain.value = 0.009 + index * 0.0015;
+    gain.gain.value = 0.052 + index * 0.006;
     oscillator.connect(gain);
     gain.connect(filter);
     gain.connect(delay);
@@ -402,10 +409,31 @@ function createAmbientTrack(): AmbientTrack | null {
   lfoGain.connect(filter.frequency);
   lfo.start();
 
+  const playMelodyNote = () => {
+    const frequency = melodyNotes[melodyStep % melodyNotes.length];
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const startAt = context.currentTime;
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency, startAt);
+    gain.gain.setValueAtTime(0.0001, startAt);
+    gain.gain.exponentialRampToValueAtTime(0.13, startAt + 0.04);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 1.25);
+    oscillator.connect(gain);
+    gain.connect(melodyBus);
+    oscillator.start(startAt);
+    oscillator.stop(startAt + 1.35);
+    melodyStep += 1;
+  };
+
+  playMelodyNote();
+  const melodyTimer = window.setInterval(playMelodyNote, 1750);
+
   return {
     context,
     stop: () => {
       const endAt = context.currentTime + 0.22;
+      window.clearInterval(melodyTimer);
       master.gain.cancelScheduledValues(context.currentTime);
       master.gain.setValueAtTime(master.gain.value, context.currentTime);
       master.gain.linearRampToValueAtTime(0.0001, endAt);
@@ -416,6 +444,22 @@ function createAmbientTrack(): AmbientTrack | null {
       }, 280);
     },
   };
+}
+
+function playInterfaceTone(context: AudioContext, frequency = 660, level = 0.055) {
+  if (context.state !== "running") return;
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  const startAt = context.currentTime;
+  oscillator.frequency.value = frequency;
+  oscillator.type = "sine";
+  gain.gain.setValueAtTime(0.0001, startAt);
+  gain.gain.exponentialRampToValueAtTime(level, startAt + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.15);
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start(startAt);
+  oscillator.stop(startAt + 0.17);
 }
 
 export default function PortfolioClient() {
@@ -563,21 +607,10 @@ export default function PortfolioClient() {
 
   const playTone = () => {
     if (!musicEnabled || !musicRef.current) return;
-    const { context } = musicRef.current;
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.frequency.value = 520;
-    oscillator.type = "sine";
-    gain.gain.setValueAtTime(0.0001, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.018, context.currentTime + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.12);
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.13);
+    playInterfaceTone(musicRef.current.context, 520, 0.032);
   };
 
-  const toggleMusic = () => {
+  const toggleMusic = async () => {
     if (musicRef.current) {
       musicRef.current.stop();
       musicRef.current = null;
@@ -587,14 +620,18 @@ export default function PortfolioClient() {
 
     const track = createAmbientTrack();
     if (!track) return;
-    musicRef.current = track;
-    setMusicEnabled(true);
-    if (track.context.state === "suspended") {
-      void track.context.resume().catch(() => {
-        track.stop();
-        musicRef.current = null;
-        setMusicEnabled(false);
-      });
+
+    try {
+      if (track.context.state === "suspended") {
+        await track.context.resume();
+      }
+      musicRef.current = track;
+      setMusicEnabled(true);
+      playInterfaceTone(track.context, 740, 0.06);
+    } catch {
+      track.stop();
+      musicRef.current = null;
+      setMusicEnabled(false);
     }
   };
 
@@ -733,7 +770,7 @@ export default function PortfolioClient() {
             onClick={toggleMusic}
           >
             {musicEnabled ? <FiVolume2 /> : <FiVolumeX />}
-            <span>{musicEnabled ? "Music On" : "Music"}</span>
+            <span>{musicEnabled ? "Music On" : "Play Music"}</span>
           </button>
           <IconButton
             label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
