@@ -68,6 +68,11 @@ type ChatMessage = {
   text: string;
 };
 
+type AmbientTrack = {
+  context: AudioContext;
+  stop: () => void;
+};
+
 const contact = {
   name: "Shoaib Farman",
   role: "Frontend Developer & UI/UX Designer",
@@ -337,11 +342,87 @@ const reveal = {
   show: { opacity: 1, y: 0 },
 };
 
+const ambientNotes = [196, 246.94, 293.66, 369.99];
+
+function getAudioContextConstructor() {
+  if (typeof window === "undefined") return null;
+  return (
+    window.AudioContext ||
+    (window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext ||
+    null
+  );
+}
+
+function createAmbientTrack(): AmbientTrack | null {
+  const AudioContextCtor = getAudioContextConstructor();
+  if (!AudioContextCtor) return null;
+
+  const context = new AudioContextCtor();
+  const master = context.createGain();
+  const filter = context.createBiquadFilter();
+  const delay = context.createDelay(1.8);
+  const feedback = context.createGain();
+  const lfo = context.createOscillator();
+  const lfoGain = context.createGain();
+  const oscillators: OscillatorNode[] = [];
+
+  master.gain.setValueAtTime(0.0001, context.currentTime);
+  master.gain.linearRampToValueAtTime(0.035, context.currentTime + 0.8);
+  master.connect(context.destination);
+
+  filter.type = "lowpass";
+  filter.frequency.value = 820;
+  filter.Q.value = 0.82;
+  filter.connect(master);
+
+  delay.delayTime.value = 0.46;
+  feedback.gain.value = 0.22;
+  delay.connect(feedback);
+  feedback.connect(delay);
+  delay.connect(filter);
+
+  ambientNotes.forEach((frequency, index) => {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = index % 2 === 0 ? "sine" : "triangle";
+    oscillator.frequency.value = frequency;
+    oscillator.detune.value = index * 4 - 6;
+    gain.gain.value = 0.009 + index * 0.0015;
+    oscillator.connect(gain);
+    gain.connect(filter);
+    gain.connect(delay);
+    oscillator.start();
+    oscillators.push(oscillator);
+  });
+
+  lfo.type = "sine";
+  lfo.frequency.value = 0.07;
+  lfoGain.gain.value = 110;
+  lfo.connect(lfoGain);
+  lfoGain.connect(filter.frequency);
+  lfo.start();
+
+  return {
+    context,
+    stop: () => {
+      const endAt = context.currentTime + 0.22;
+      master.gain.cancelScheduledValues(context.currentTime);
+      master.gain.setValueAtTime(master.gain.value, context.currentTime);
+      master.gain.linearRampToValueAtTime(0.0001, endAt);
+      oscillators.forEach((oscillator) => oscillator.stop(endAt + 0.02));
+      lfo.stop(endAt + 0.02);
+      window.setTimeout(() => {
+        void context.close().catch(() => undefined);
+      }, 280);
+    },
+  };
+}
+
 export default function PortfolioClient() {
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const [theme, setTheme] = useState<Theme>("dark");
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [musicEnabled, setMusicEnabled] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [navHidden, setNavHidden] = useState(false);
@@ -365,6 +446,7 @@ export default function PortfolioClient() {
   const themeStorageReady = useRef(false);
   const projectsStorageReady = useRef(false);
   const lastScrollY = useRef(0);
+  const musicRef = useRef<AmbientTrack | null>(null);
 
   const filters = useMemo(() => {
     const tagSet = new Set<string>(["All"]);
@@ -472,25 +554,48 @@ export default function PortfolioClient() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [mobileNavOpen]);
 
-  const playTone = () => {
-    if (!soundEnabled || typeof window === "undefined") return;
-    const AudioContextCtor =
-      window.AudioContext ||
-      (window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  useEffect(() => {
+    return () => {
+      musicRef.current?.stop();
+      musicRef.current = null;
+    };
+  }, []);
 
-    if (!AudioContextCtor) return;
-    const audio = new AudioContextCtor();
-    const oscillator = audio.createOscillator();
-    const gain = audio.createGain();
-    oscillator.frequency.value = 420;
+  const playTone = () => {
+    if (!musicEnabled || !musicRef.current) return;
+    const { context } = musicRef.current;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.frequency.value = 520;
     oscillator.type = "sine";
-    gain.gain.setValueAtTime(0.0001, audio.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.025, audio.currentTime + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.0001, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.018, context.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.12);
     oscillator.connect(gain);
-    gain.connect(audio.destination);
+    gain.connect(context.destination);
     oscillator.start();
-    oscillator.stop(audio.currentTime + 0.13);
+    oscillator.stop(context.currentTime + 0.13);
+  };
+
+  const toggleMusic = () => {
+    if (musicRef.current) {
+      musicRef.current.stop();
+      musicRef.current = null;
+      setMusicEnabled(false);
+      return;
+    }
+
+    const track = createAmbientTrack();
+    if (!track) return;
+    musicRef.current = track;
+    setMusicEnabled(true);
+    if (track.context.state === "suspended") {
+      void track.context.resume().catch(() => {
+        track.stop();
+        musicRef.current = null;
+        setMusicEnabled(false);
+      });
+    }
   };
 
   const handleProjectSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -621,12 +726,15 @@ export default function PortfolioClient() {
           ))}
         </nav>
         <div className="nav-actions">
-          <IconButton
-            label={soundEnabled ? "Turn sound effects off" : "Turn sound effects on"}
-            onClick={() => setSoundEnabled((current) => !current)}
+          <button
+            type="button"
+            className={`music-toggle ${musicEnabled ? "active" : ""}`}
+            aria-label={musicEnabled ? "Stop background music" : "Play background music"}
+            onClick={toggleMusic}
           >
-            {soundEnabled ? <FiVolume2 /> : <FiVolumeX />}
-          </IconButton>
+            {musicEnabled ? <FiVolume2 /> : <FiVolumeX />}
+            <span>{musicEnabled ? "Music On" : "Music"}</span>
+          </button>
           <IconButton
             label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
