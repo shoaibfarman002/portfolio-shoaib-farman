@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | Shoaib Farman",
     },
     description:
-      "Premium modern 3D interactive developer portfolio for Shoaib Farman, frontend developer and UI/UX designer.",
+      "Premium modern interactive developer portfolio for Shoaib Farman, frontend developer and UI/UX designer.",
     keywords: [
       "Shoaib Farman",
       "Frontend Developer",
@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: "Shoaib Farman | Interactive Developer Portfolio",
       description:
-        "A cinematic portfolio for a frontend developer crafting modern React.js and UI/UX experiences.",
+        "A polished portfolio for a frontend developer crafting modern React.js and UI/UX experiences.",
       type: "website",
       images: [
         {

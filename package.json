@@ -17,12 +17,10 @@
     "@emailjs/browser": "^4.4.1",
     "drizzle-orm": "0.45.2",
     "framer-motion": "^12.43.0",
-    "gsap": "^3.15.0",
     "next": "16.2.6",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "react-icons": "^5.7.0",
-    "three": "^0.185.1"
+    "react-icons": "^5.7.0"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
