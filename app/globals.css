@@ -25,18 +25,24 @@
 }
 
 :root[data-theme="dark"] {
-  --bg: #0c1020;
-  --surface: rgba(20, 28, 52, 0.78);
-  --surface-solid: #11182d;
-  --surface-soft: rgba(255, 255, 255, 0.07);
-  --text: #eef4ff;
-  --heading: #ffffff;
-  --muted: #a6b1c8;
-  --line: rgba(255, 255, 255, 0.12);
-  --line-strong: rgba(255, 255, 255, 0.18);
-  --shadow-sm: 0 10px 28px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 22px 60px rgba(0, 0, 0, 0.28);
-  --shadow-lg: 0 28px 90px rgba(0, 0, 0, 0.38);
+  --bg: #090a10;
+  --surface: rgba(22, 24, 35, 0.84);
+  --surface-solid: #11131b;
+  --surface-soft: rgba(255, 255, 255, 0.055);
+  --text: #eef2f7;
+  --heading: #fff7ed;
+  --muted: #a9b2c4;
+  --line: rgba(248, 218, 176, 0.13);
+  --line-strong: rgba(45, 212, 191, 0.34);
+  --cyan: #2dd4bf;
+  --blue: #38bdf8;
+  --purple: #fb7185;
+  --rose: #f43f5e;
+  --mint: #34d399;
+  --amber: #fbbf24;
+  --shadow-sm: 0 14px 34px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 24px 70px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 34px 100px rgba(0, 0, 0, 0.52);
 }
 
 * {
@@ -129,6 +135,21 @@ button {
   opacity: 0.55;
 }
 
+:root[data-theme="dark"] .portfolio-shell::before {
+  background:
+    linear-gradient(135deg, rgba(45, 212, 191, 0.12), transparent 38%),
+    linear-gradient(225deg, rgba(244, 63, 94, 0.1), transparent 44%),
+    linear-gradient(180deg, #090a10 0%, #0d1017 48%, #121019 100%);
+}
+
+:root[data-theme="dark"] .ambient-background {
+  background:
+    conic-gradient(from 130deg at 38% 45%, transparent 0 18%, rgba(45, 212, 191, 0.13) 24%, transparent 34% 52%, rgba(251, 191, 36, 0.1) 60%, transparent 74%),
+    linear-gradient(115deg, transparent 10%, rgba(45, 212, 191, 0.1), transparent 38%, rgba(244, 63, 94, 0.08), transparent 68%);
+  filter: blur(42px) saturate(1.18);
+  opacity: 0.62;
+}
+
 .scroll-progress {
   position: fixed;
   top: 0;
@@ -162,6 +183,13 @@ button {
     border-color 220ms ease;
 }
 
+:root[data-theme="dark"] .nav-shell,
+:root[data-theme="dark"] .mobile-nav,
+:root[data-theme="dark"] .chat-panel {
+  border-color: rgba(248, 218, 176, 0.12);
+  background: rgba(12, 14, 22, 0.86);
+}
+
 .nav-hidden {
   transform: translateY(calc(-100% - 22px));
 }
@@ -178,6 +206,14 @@ button {
   color: var(--heading);
   font-weight: 900;
   letter-spacing: 0;
+}
+
+:root[data-theme="dark"] .brand-mark,
+:root[data-theme="dark"] .footer-logo {
+  border-color: rgba(45, 212, 191, 0.36);
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.18), rgba(251, 113, 133, 0.16));
+  color: var(--heading);
+  box-shadow: 0 12px 34px rgba(45, 212, 191, 0.12);
 }
 
 .desktop-nav {
@@ -225,6 +261,14 @@ button {
 .footer nav a:hover {
   color: var(--heading);
   background: rgba(6, 182, 212, 0.08);
+}
+
+:root[data-theme="dark"] .desktop-nav a:hover,
+:root[data-theme="dark"] .desktop-nav a.active,
+:root[data-theme="dark"] .mobile-nav a:hover,
+:root[data-theme="dark"] .mobile-nav a.active,
+:root[data-theme="dark"] .footer nav a:hover {
+  background: rgba(45, 212, 191, 0.1);
 }
 
 .desktop-nav a:hover::after,
@@ -361,6 +405,12 @@ button {
   color: transparent;
 }
 
+:root[data-theme="dark"] .hero-copy-panel h1 span {
+  background: linear-gradient(90deg, var(--heading), var(--cyan) 44%, var(--rose));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 .role-line {
   display: flex;
   min-height: 42px;
@@ -453,6 +503,16 @@ button {
   box-shadow: 0 16px 36px rgba(49, 92, 246, 0.22);
 }
 
+:root[data-theme="dark"] .button-link.primary,
+:root[data-theme="dark"] .project-form-actions button,
+:root[data-theme="dark"] .contact-form button,
+:root[data-theme="dark"] .project-links .live-demo-link,
+:root[data-theme="dark"] .chat-launcher {
+  background: linear-gradient(135deg, var(--cyan), var(--rose));
+  color: #071011;
+  box-shadow: 0 18px 42px rgba(45, 212, 191, 0.2), 0 10px 28px rgba(244, 63, 94, 0.14);
+}
+
 .button-link.secondary,
 .ghost-button {
   background: var(--surface);
@@ -513,6 +573,31 @@ button {
   backdrop-filter: blur(18px);
 }
 
+:root[data-theme="dark"] .hero-profile,
+:root[data-theme="dark"] .skill-card,
+:root[data-theme="dark"] .service-card,
+:root[data-theme="dark"] .project-card,
+:root[data-theme="dark"] .case-card,
+:root[data-theme="dark"] .contact-panel,
+:root[data-theme="dark"] .contact-form,
+:root[data-theme="dark"] .github-panel,
+:root[data-theme="dark"] .project-control,
+:root[data-theme="dark"] .testimonial-card,
+:root[data-theme="dark"] .stat-card,
+:root[data-theme="dark"] .repo-showcase article {
+  border-color: rgba(248, 218, 176, 0.12);
+  background:
+    linear-gradient(180deg, rgba(23, 25, 36, 0.9), rgba(10, 12, 19, 0.78)),
+    linear-gradient(135deg, rgba(45, 212, 191, 0.06), rgba(251, 191, 36, 0.035), rgba(244, 63, 94, 0.045));
+}
+
+:root[data-theme="dark"] .skill-card:hover,
+:root[data-theme="dark"] .service-card:hover,
+:root[data-theme="dark"] .project-card:hover {
+  border-color: rgba(45, 212, 191, 0.34);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.44), 0 0 0 1px rgba(45, 212, 191, 0.08);
+}
+
 .profile-visual {
   display: grid;
   min-height: 0;
@@ -535,6 +620,10 @@ button {
   box-shadow: 0 24px 68px rgba(23, 31, 70, 0.24);
   filter: saturate(1.04) contrast(1.02);
   transition: transform 260ms ease;
+}
+
+:root[data-theme="dark"] .profile-visual img {
+  box-shadow: 0 28px 76px rgba(0, 0, 0, 0.48), 0 0 0 1px rgba(248, 218, 176, 0.1);
 }
 
 .hero-profile:hover .profile-visual img {
@@ -771,6 +860,13 @@ button {
   font-size: 1.65rem;
 }
 
+:root[data-theme="dark"] .skill-icon,
+:root[data-theme="dark"] .profile-summary,
+:root[data-theme="dark"] .profile-metrics span {
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(248, 218, 176, 0.11);
+}
+
 .skill-topline strong {
   color: var(--heading);
   font-size: 1.36rem;
@@ -955,7 +1051,8 @@ button {
 :root[data-theme="dark"] .contact-form textarea,
 :root[data-theme="dark"] .premium-select > button,
 :root[data-theme="dark"] .chat-panel input {
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(7, 9, 15, 0.68);
+  border-color: rgba(248, 218, 176, 0.12);
 }
 
 .project-form input,
@@ -988,8 +1085,8 @@ button {
 .contact-form textarea:focus,
 .premium-select > button:focus-visible,
 .chat-panel input:focus {
-  border-color: rgba(6, 182, 212, 0.58);
-  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.12);
+  border-color: rgba(45, 212, 191, 0.64);
+  box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.14);
 }
 
 .full-field,
@@ -1073,7 +1170,8 @@ button {
 }
 
 :root[data-theme="dark"] .select-menu {
-  background: #121a30;
+  background: #11131b;
+  border-color: rgba(248, 218, 176, 0.14);
 }
 
 .select-menu button {
@@ -1094,6 +1192,11 @@ button {
 .select-menu button:hover,
 .select-menu li[aria-selected="true"] button {
   background: rgba(6, 182, 212, 0.1);
+}
+
+:root[data-theme="dark"] .select-menu button:hover,
+:root[data-theme="dark"] .select-menu li[aria-selected="true"] button {
+  background: rgba(45, 212, 191, 0.12);
 }
 
 .filter-row {
@@ -1119,6 +1222,12 @@ button {
   color: var(--heading);
 }
 
+:root[data-theme="dark"] .filter-row button.active,
+:root[data-theme="dark"] .tag-row span {
+  border-color: rgba(45, 212, 191, 0.28);
+  background: rgba(45, 212, 191, 0.09);
+}
+
 .project-card {
   position: relative;
   display: flex;
@@ -1139,6 +1248,12 @@ button {
     linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(124, 58, 237, 0.12)),
     linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
   background-size: auto, 28px 28px;
+}
+
+:root[data-theme="dark"] .project-thumb {
+  background:
+    linear-gradient(135deg, rgba(45, 212, 191, 0.11), rgba(251, 191, 36, 0.06), rgba(244, 63, 94, 0.1)),
+    linear-gradient(90deg, rgba(248, 218, 176, 0.08) 1px, transparent 1px);
 }
 
 .project-thumb img {
@@ -1420,6 +1535,13 @@ button {
   font-weight: 900;
 }
 
+:root[data-theme="dark"] .testimonial-avatar,
+:root[data-theme="dark"] .chat-panel header span,
+:root[data-theme="dark"] .thumb-fallback {
+  background: linear-gradient(135deg, var(--cyan), var(--amber), var(--rose));
+  color: #071011;
+}
+
 .testimonial-card p {
   max-width: 610px;
   margin: 20px 0 18px;
@@ -1515,6 +1637,13 @@ button {
   background-size: 28px 28px, 28px 28px, auto;
 }
 
+:root[data-theme="dark"] .map-panel {
+  background:
+    linear-gradient(90deg, rgba(248, 218, 176, 0.09) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(248, 218, 176, 0.09) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(45, 212, 191, 0.1), rgba(251, 191, 36, 0.06), rgba(244, 63, 94, 0.1));
+}
+
 .map-panel i {
   position: absolute;
   top: 36%;
@@ -1535,6 +1664,12 @@ button {
   color: #ffffff;
   font-size: 0.78rem;
   font-weight: 900;
+}
+
+:root[data-theme="dark"] .map-pin {
+  border-color: rgba(45, 212, 191, 0.34);
+  background: rgba(7, 9, 15, 0.76);
+  color: var(--heading);
 }
 
 .map-pin.delhi {
