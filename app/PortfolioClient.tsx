@@ -1,6 +1,5 @@
 "use client";
 
-import emailjs from "@emailjs/browser";
 import { AnimatePresence, motion, useReducedMotion, useScroll } from "framer-motion";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
@@ -84,6 +83,28 @@ const contact = {
     "https://wa.me/918092870350?text=Hi%20Shoaib%2C%20I%20want%20to%20discuss%20a%20project.",
   resume: "/resume-shoaib-farman.html",
 };
+
+function buildWhatsAppInquiryUrl(formData: FormData) {
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim();
+  const projectType = String(formData.get("projectType") || "").trim();
+  const budget = String(formData.get("budget") || "").trim();
+  const message = String(formData.get("message") || "").trim();
+  const inquiryLines = [
+    "Hi Shoaib, I want to send a project inquiry.",
+    "",
+    `Name: ${name}`,
+    `Email: ${email}`,
+    `Project Type: ${projectType}`,
+    `Budget: ${budget}`,
+  ];
+
+  if (message) {
+    inquiryLines.push(`Message: ${message}`);
+  }
+
+  return `https://wa.me/91${contact.phone}?text=${encodeURIComponent(inquiryLines.join("\n"))}`;
+}
 
 const navItems = [
   ["Home", "home"],
@@ -486,7 +507,7 @@ export default function PortfolioClient() {
       text: "Hi, I am Shoaib's portfolio assistant. Ask me about his skills, services, projects, or hiring details.",
     },
   ]);
-  const [contactStatus, setContactStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [contactStatus, setContactStatus] = useState<"idle" | "success" | "error">("idle");
   const themeStorageReady = useRef(false);
   const projectsStorageReady = useRef(false);
   const lastScrollY = useRef(0);
@@ -713,37 +734,30 @@ export default function PortfolioClient() {
     ]);
   };
 
-  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     playTone();
-    setContactStatus("loading");
     const form = event.currentTarget;
+    if (!form.reportValidity()) return;
+
     const formData = new FormData(form);
-    const templateParams = {
-      from_name: String(formData.get("name") || ""),
-      from_email: String(formData.get("email") || ""),
-      project_type: String(formData.get("projectType") || ""),
-      budget: String(formData.get("budget") || ""),
-      message: String(formData.get("message") || ""),
-      to_email: contact.email,
-    };
+    const missingRequiredField = ["name", "email", "projectType", "budget"].some(
+      (field) => !String(formData.get(field) || "").trim(),
+    );
 
-    try {
-      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-
-      if (serviceId && templateId && publicKey) {
-        await emailjs.send(serviceId, templateId, templateParams, { publicKey });
-      } else {
-        await new Promise((resolve) => window.setTimeout(resolve, 600));
-      }
-
-      setContactStatus("success");
-      form.reset();
-    } catch {
+    if (missingRequiredField) {
       setContactStatus("error");
+      return;
     }
+
+    const whatsappUrl = buildWhatsAppInquiryUrl(formData);
+    const whatsappWindow = window.open(whatsappUrl, "_blank");
+    if (whatsappWindow) {
+      whatsappWindow.opener = null;
+    } else {
+      window.location.assign(whatsappUrl);
+    }
+    setContactStatus("success");
   };
 
   return (
@@ -1224,7 +1238,7 @@ export default function PortfolioClient() {
         <Reveal className="section-heading">
           <p className="eyebrow">Contact</p>
           <h2>Let&apos;s build something modern.</h2>
-          <p>Send a project inquiry, open WhatsApp directly, or use the contact details below.</p>
+          <p>Send a project inquiry and WhatsApp will open with your details ready.</p>
         </Reveal>
         <div className="contact-grid">
           <Reveal className="contact-panel">
@@ -1274,33 +1288,35 @@ export default function PortfolioClient() {
             <FormField label="Project Type">
               <PremiumSelect
                 name="projectType"
-                defaultValue="React Website"
+                placeholder="Select project type"
+                required
                 options={["React Website", "Landing Page", "Admin Dashboard UI", "UI/UX Design", "Responsive Website"]}
               />
             </FormField>
             <FormField label="Budget">
               <PremiumSelect
                 name="budget"
-                defaultValue="Rs. 5,000 - Rs. 15,000"
+                placeholder="Select budget"
+                required
                 options={["Rs. 5,000 - Rs. 15,000", "Rs. 15,000 - Rs. 35,000", "Rs. 35,000+", "Monthly collaboration"]}
               />
             </FormField>
             <FormField label="Message" full>
-              <textarea name="message" placeholder="Tell me about your project..." required />
+              <textarea name="message" placeholder="Tell me about your project..." />
             </FormField>
-            <button type="submit" disabled={contactStatus === "loading"}>
+            <button type="submit">
               <FiSend />
-              {contactStatus === "loading" ? "Sending..." : "Send Inquiry"}
+              Send Inquiry on WhatsApp
             </button>
             <AnimatePresence>
               {contactStatus === "success" ? (
                 <motion.p className="form-status success" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  Message ready. EmailJS is connected when your public keys are added.
+                  WhatsApp opened with your inquiry ready to send.
                 </motion.p>
               ) : null}
               {contactStatus === "error" ? (
                 <motion.p className="form-status error" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  EmailJS could not send right now. Please use WhatsApp or email directly.
+                  Please fill name, email, project type, and budget before sending.
                 </motion.p>
               ) : null}
             </AnimatePresence>
@@ -1413,20 +1429,24 @@ function FormField({ label, children, full = false }: { label: string; children:
 
 function PremiumSelect({
   name,
-  defaultValue,
+  defaultValue = "",
+  placeholder = "Select an option",
   options,
+  required = false,
 }: {
   name: string;
-  defaultValue: string;
+  defaultValue?: string;
+  placeholder?: string;
   options: string[];
+  required?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(defaultValue);
   const id = `${name}-select`;
 
   return (
-    <div className="premium-select">
-      <input type="hidden" name={name} value={value} />
+    <div className={`premium-select ${value ? "" : "is-placeholder"}`}>
+      <input type="hidden" name={name} value={value} required={required} />
       <button
         type="button"
         aria-haspopup="listbox"
@@ -1434,7 +1454,7 @@ function PremiumSelect({
         aria-labelledby={id}
         onClick={() => setOpen((current) => !current)}
       >
-        <span id={id}>{value}</span>
+        <span id={id}>{value || placeholder}</span>
         <FiChevronDown className={open ? "open" : ""} />
       </button>
       <AnimatePresence>

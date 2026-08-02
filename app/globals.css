@@ -1042,6 +1042,10 @@ button {
   text-transform: none;
 }
 
+.premium-select.is-placeholder > button span {
+  color: var(--muted);
+}
+
 .premium-select svg {
   flex: 0 0 auto;
   transition: transform 180ms ease;
